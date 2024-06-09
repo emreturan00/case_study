@@ -1,101 +1,90 @@
 ﻿using case_study.Dtos;
 using case_study.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace case_study.Repositories
 {
     public class AccountRepository : IAccountRepository
     {
-        private readonly List<Customer> _customers;
+        private readonly AppDbContext _context;
 
-        public AccountRepository(List<Customer> customers)
+        public AccountRepository(AppDbContext context)
         {
-            _customers = customers;
+            _context = context;
         }
 
         public async Task<AccountDto> AddAccountAsync(int customerId, AccountDto accountDto)
         {
-            var customer = _customers.FirstOrDefault(c => c.CustomerId == customerId);
+            var customer = await _context.Customers
+                .Include(c => c.Accounts)
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
             if (customer == null)
             {
-                throw new InvalidOperationException("Customer not found.");
+                return null;
             }
 
-            var newAccount = new Account
-            {
-                AccountId = customer.Accounts.Count + 1,
-                AccountNumber = accountDto.AccountNumber,
-                Balance = accountDto.Balance,
-                CustomerId = customerId
-            };
+            var account = accountDto.ToModel();
 
-            customer.Accounts.Add(newAccount);
-            accountDto.Id = newAccount.CustomerId;
-            return await Task.FromResult(accountDto);
+            customer.Accounts.Add(account);
+
+            await _context.SaveChangesAsync();
+
+            return AccountDto.FromModel(account);
         }
+
 
         public async Task<AccountDto> GetAccountAsync(int accountId)
         {
-            var account = _customers
-                .SelectMany(c => c.Accounts)
-                .FirstOrDefault(a => a.CustomerId == accountId);
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == accountId);
 
             if (account == null)
             {
-                throw new InvalidOperationException("Account not found.");
+                return null;
             }
 
-            var accountDto = new AccountDto
-            {
-                Id = account.CustomerId,
-                AccountNumber = account.AccountNumber,
-                Balance = account.Balance,
-                CustomerId = account.CustomerId
-            };
-
-            return await Task.FromResult(accountDto);
+            return AccountDto.FromModel(account);
         }
 
-        public async Task<IEnumerable<AccountDto>> GetAccountsForCustomerAsync(int customerId)
+
+        public async Task<bool> UpdateAccountAsync(int accountId, AccountDto accountDto)
         {
-            var customer = _customers.FirstOrDefault(c => c.CustomerId == customerId);
-            if (customer == null)
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == accountId);
+
+            if (account == null)
             {
-                throw new InvalidOperationException("Customer not found.");
+                return false;
             }
 
-            var accountDtos = customer.Accounts.Select(a => new AccountDto
-            {
-                Id = a.CustomerId,
-                AccountNumber = a.AccountNumber,
-                Balance = a.Balance,
-                CustomerId = a.CustomerId
-            });
+            account.AccountNumber = accountDto.AccountNumber;
+            account.Balance = accountDto.Balance;
+            account.CustomerId = accountDto.CustomerId;
 
-            return await Task.FromResult(accountDtos);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
-        public async Task TransferAsync(TransferDto transferDto)
+
+        public async Task<bool> DeleteAccountAsync(int accountId)
         {
-            var sourceAccount = _customers
-                .SelectMany(c => c.Accounts)
-                .FirstOrDefault(a => a.AccountId == transferDto.SourceAccountId);
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == accountId);
 
-            var destinationAccount = _customers
-                .SelectMany(c => c.Accounts)
-                .FirstOrDefault(a => a.AccountId == transferDto.DestinationAccountId);
-
-            if (sourceAccount == null || destinationAccount == null)
+            if (account == null)
             {
-                throw new InvalidOperationException("One or both accounts not found.");
+                return false;
             }
 
-            if (sourceAccount.Balance < transferDto.Amount)
-            {
-                throw new InvalidOperationException("Insufficient funds in the source account.");
-            }
+            _context.Accounts.Remove(account);
 
-            sourceAccount.Balance -= transferDto.Amount;
-            destinationAccount.Balance += transferDto.Amount;
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }
