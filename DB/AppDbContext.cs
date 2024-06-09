@@ -6,8 +6,8 @@ public class AppDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Account> Accounts { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
     {
-        optionsBuilder.UseInMemoryDatabase("CaseStudyDb");
     }
 }

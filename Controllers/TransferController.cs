@@ -18,6 +18,7 @@ namespace case_study.Controllers
         [HttpPost]
         public async Task<IActionResult> Transfer(TransferDto transfer)
         {
+            Console.WriteLine("Transfering money");
             await _transferService.TransferAsync(transfer);
             return Ok();
         }

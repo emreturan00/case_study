@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace case_study
 {
@@ -23,12 +24,19 @@ namespace case_study
             // Add framework services.
             services.AddControllers();
 
+            // Add DbContext
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseInMemoryDatabase("CaseStudyDb"));
+
+
             // Add your services and repositories
-            services.AddSingleton<ICustomerRepository, CustomerRepository>();
-            services.AddSingleton<IAccountRepository, AccountRepository>();
-            services.AddSingleton<ICustomerService, CustomerService>();
-            services.AddSingleton<IAccountService, AccountService>();
-            services.AddSingleton<IMessageQueuePublisher, MessageQueuePublisher>(); // If using a message queue
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ITransferService, TransferService>();
+            services.AddScoped<IMessageQueuePublisher, MessageQueuePublisher>(); // If using a message queue
+
 
             // Add other services as needed
         }

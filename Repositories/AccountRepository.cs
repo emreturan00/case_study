@@ -86,5 +86,33 @@ namespace case_study.Repositories
 
             return true;
         }
+
+        public async Task TransferAsync(TransferDto transfer)
+        {
+            var sourceAccount = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == transfer.SourceAccountId);
+
+            var destinationAccount = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == transfer.DestinationAccountId);
+
+            if (sourceAccount == null || destinationAccount == null)
+            {
+                return;
+            }
+
+            sourceAccount.Balance -= transfer.Amount;
+            destinationAccount.Balance += transfer.Amount;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<AccountDto>> GetAccountsForCustomerAsync(int customerId)
+        {
+            var accounts = await _context.Accounts
+                .Where(a => a.CustomerId == customerId)
+                .ToListAsync();
+
+            return accounts.Select(a => AccountDto.FromModel(a));
+        }
     }
 }
