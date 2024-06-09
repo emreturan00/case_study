@@ -114,5 +114,23 @@ namespace case_study.Repositories
 
             return accounts.Select(a => AccountDto.FromModel(a));
         }
+
+        public async Task<bool> UpdateAccountByCustomerAsync(int customerId, AccountDto accountDto)
+        {
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.CustomerId == customerId);
+
+            if (account == null)
+            {
+                return false;
+            }
+
+            account.AccountNumber = accountDto.AccountNumber;
+            account.Balance = accountDto.Balance;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

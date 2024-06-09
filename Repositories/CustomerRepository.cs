@@ -39,7 +39,6 @@ namespace case_study.Repositories
             }
 
             customer.Name = customerDto.Name;
-            customer.Accounts = customerDto.Accounts.Select(a => a.ToModel()).ToList();
 
             await _context.SaveChangesAsync();
 

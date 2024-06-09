@@ -11,6 +11,8 @@ namespace case_study.Repositories
         Task<bool> DeleteAccountAsync(int accountId);
         Task TransferAsync(TransferDto transfer);
         Task<IEnumerable<AccountDto>> GetAccountsForCustomerAsync(int customerId);
+        Task<bool> UpdateAccountByCustomerAsync(int customerId, AccountDto accountDto);
+
 
 
     }

@@ -18,26 +18,26 @@ namespace case_study.Services
 
         public async Task<AccountDto> AddAccountAsync(int customerId, AccountDto accountDto)
         {
-            // Additional validation logic can be added here
             return await _repository.AddAccountAsync(customerId, accountDto);
         }
 
         public async Task<AccountDto> GetAccountAsync(int accountId)
         {
-            // Additional logic such as access control can be applied here
             return await _repository.GetAccountAsync(accountId);
         }
 
         public async Task<IEnumerable<AccountDto>> GetAccountsForCustomerAsync(int customerId)
         {
-            // Additional logic such as access control can be applied here
             return await _repository.GetAccountsForCustomerAsync(customerId);
         }
 
         public async Task TransferAsync(TransferDto transferDto)
         {
-            // Additional validation or business logic for transfer can be added here
             await _repository.TransferAsync(transferDto);
+        }
+        public async Task<bool> UpdateAccountByCustomerAsync(int customerId, AccountDto accountDto)
+        {
+            return await _repository.UpdateAccountByCustomerAsync(customerId, accountDto);
         }
 
     }

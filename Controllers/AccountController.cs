@@ -52,5 +52,17 @@ namespace case_study.Controllers
             var accounts = await _accountService.GetAccountsForCustomerAsync(customerId);
             return Ok(accounts);
         }
+
+        [HttpPut("customer/{customerId}")]
+        public async Task<IActionResult> UpdateAccountByCustomer(int customerId, AccountDto accountDto)
+        {
+            var result = await _accountService.UpdateAccountByCustomerAsync(customerId, accountDto);
+            if (!result)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

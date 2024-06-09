@@ -10,5 +10,7 @@ namespace case_study.Services
         Task<AccountDto> GetAccountAsync(int accountId);
         Task<IEnumerable<AccountDto>> GetAccountsForCustomerAsync(int customerId);
         Task TransferAsync(TransferDto transferDto);
+        Task<bool> UpdateAccountByCustomerAsync(int customerId, AccountDto accountDto);
+
     }
 }

@@ -11,35 +11,29 @@ public class MessageQueuePublisher : IMessageQueuePublisher
 
     public MessageQueuePublisher()
     {
-        // Initialize RabbitMQ connection factory
         _connectionFactory = new ConnectionFactory
         {
-            HostName = "localhost", // RabbitMQ server hostname
-            UserName = "guest",     // RabbitMQ username
-            Password = "guest"      // RabbitMQ password
+            HostName = "localhost", 
+            UserName = "guest",     
+            Password = "guest"     
         };
     }
 
     public Task PublishTransferMessageAsync(TransferDto transferDto)
     {
-        // Create a connection to RabbitMQ server
         using (var connection = _connectionFactory.CreateConnection())
         {
-            // Create a channel
             using (var channel = connection.CreateModel())
             {
-                // Declare the queue if it doesn't exist
                 channel.QueueDeclare(queue: QueueName,
                                      durable: false,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
 
-                // Convert the transferDto to a JSON string
                 var messageBody = Newtonsoft.Json.JsonConvert.SerializeObject(transferDto);
                 var body = Encoding.UTF8.GetBytes(messageBody);
 
-                // Publish the message to the queue
                 channel.BasicPublish(exchange: "",
                                      routingKey: QueueName,
                                      basicProperties: null,
@@ -49,7 +43,6 @@ public class MessageQueuePublisher : IMessageQueuePublisher
             }
         }
 
-        // Return a completed task
         return Task.CompletedTask;
     }
 }
