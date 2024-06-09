@@ -21,6 +21,11 @@ namespace case_study.Services
             {
                 var fromAccount = await _accountRepository.GetAccountAsync(transfer.SourceAccountId);
                 var toAccount = await _accountRepository.GetAccountAsync(transfer.DestinationAccountId);
+                
+                if (transfer.Amount <= 0)
+                {
+                    throw new ArgumentException("Transfer amount must be greater than zero");
+                }
 
                 if (fromAccount.Balance < transfer.Amount)
                 {
